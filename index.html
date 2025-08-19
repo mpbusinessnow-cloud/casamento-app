@@ -187,65 +187,39 @@
     </div>
 
     <script>
-        // Initial data
-        const defaultItems = [
-            'Cestou de roupas',
-            'Cortina Blackout',
-            'Escorredor de louças',
-            'Ferro de passar roupas',
-            'Jogo de cama queen',
-            'Jogo de copos',
-            'Jogo de talheres dourados',
-            'Kit de potes de mantimento herméticos de vidro',
-            'Lava louças',
-            'Panela de pressão',
-            'Pipoqueira',
-            'Pix',
-            'Tabua de passar roupa',
-            'Televisão',
-            'Varal de chão'
-        ].sort();
+		import { createClient } from '@supabase/supabase-js';
+
+		// Configuração do Supabase
+		const supabaseUrl = 'https:                           
+		const supabaseKey = '//pekdtfsuyfwdfpvfjoxa.supabase.co';
+		const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBla2R0ZnN1eWZ3ZGZwdmZqb3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQxODA2MTEsImV4cCI6MjA2OTc1NjYxMX0._Wj7oKjKa6FxRFvUcVxCUM1ORq7VGptLe2cRWGkOvII';
+		const supabase = createClient(supabaseUrl, supabaseKey);
+
 
         let availableItems = [];
         let donatedItems = [];
         let currentSelectedItem = null;
         let isAdminLoggedIn = false;
 
-        // Load data from localStorage
-        function loadData() {
-            const savedAvailableItems = localStorage.getItem('weddingList_availableItems');
-            const savedDonatedItems = localStorage.getItem('weddingList_donatedItems');
 
-            if (savedAvailableItems) {
-                availableItems = JSON.parse(savedAvailableItems);
-            } else {
-                availableItems = [...defaultItems];
-                saveData();
-            }
+// Renderizar itens publicos da lista de casamento
+  async function renderPublicItems() {
+    const { data, error } = await supabase
+      .from('itens_lista')   // nome da tabela
+      .select('*');       // seleciona todos os campos
 
-            if (savedDonatedItems) {
-                donatedItems = JSON.parse(savedDonatedItems);
-            }
-        }
+    if (error) {
+      console.error('Erro ao carregar produtos:', error.message);
+      return;
+    // Exibe os dados no console
+    console.log('Lista de produtos:', data);
 
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('weddingList_availableItems', JSON.stringify(availableItems));
-            localStorage.setItem('weddingList_donatedItems', JSON.stringify(donatedItems));
-        }
 
-        // Initialize the app
-        function init() {
-            loadData();
-            renderPublicItems();
-        }
+    // Exemplo: renderizar em uma lista HTML
+     const itemsList = document.getElementById('itemsList');
+            itemsList.innerHTML = ''; // limpa a lista
 
-        // Render public items
-        function renderPublicItems() {
-            const itemsList = document.getElementById('itemsList');
-            itemsList.innerHTML = '';
-
-            availableItems.forEach(item => {
+		availableItems.forEach(item => {
                 const itemCard = document.createElement('div');
                 itemCard.className = 'bg-white rounded-2xl shadow-lg p-6 card-hover cursor-pointer';
                 itemCard.onclick = () => selectItem(item);
@@ -255,7 +229,7 @@
                 itemCard.innerHTML = `
                     <div class="text-center">
                         <div class="text-4xl mb-4">${icon}</div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">${item}</h3>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">${item.nome_item}</h3>
                         <p class="text-gray-600 text-sm mb-4">Clique para escolher este presente</p>
                         <div class="bg-pink-100 text-pink-600 px-4 py-2 rounded-full text-sm font-medium">
                             Disponível
@@ -265,6 +239,21 @@
 
                 itemsList.appendChild(itemCard);
             });
+
+        // Load data from localStorage
+        function loadData() {
+
+        }
+
+        // Save data to localStorage
+        function saveData() {
+
+        }
+
+        // Initialize the app
+        function init() {
+            loadData();
+            renderPublicItems();
         }
 
         // Select item
@@ -294,6 +283,7 @@
 
         // Confirm donation
         function confirmDonation() {
+		
             const donorName = document.getElementById('donorName').value.trim();
             
             if (!donorName) {
@@ -304,7 +294,7 @@
             let donationData = {
                 item: currentSelectedItem,
                 donor: donorName,
-                date: new Date().toLocaleString('pt-BR')
+                date: new Date().toLocaleString('pt-BR')			
             };
 
             if (currentSelectedItem === 'Pix') {
@@ -322,6 +312,7 @@
 
             donatedItems.push(donationData);
             saveData(); // Save changes
+
             
             closeModal();
             renderPublicItems();
